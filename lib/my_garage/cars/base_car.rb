@@ -1,7 +1,7 @@
 module MyGarage
   class BaseCar
-    attr_accessor :brand, :color, :current_speed, :max_speed
-    attr_reader :name, :motion
+    attr_accessor :color, :max_speed
+    attr_reader :brand, :current_speed, :name, :motion
 
     def initialize(hsh = {})
       @brand = hsh[:brand] || 'unknown'
@@ -12,45 +12,58 @@ module MyGarage
       @motion = :stop
       @mutex = Mutex.new
       @cv = ConditionVariable.new
-      turn_on
     end
 
     def brake
       unless car_on?
-        puts "The brake lights come on. The car isn't running. Try turn_on first"
+        puts "The brake lights come on. The car isn't running. You need to turn it on first."
         return
       end
 
-      if current_speed == 0
+      if motion == :stop
         puts "The #{name} is already stopped. You should try drive."
         return
       end
       brake_thread = Thread.new{
         @mutex.synchronize {
-          puts "The #{color} colored #{name} begins to slow..."
+          puts "You apply the brake and the #{name} begins to slow..."
           decelerate
           @cv.signal
         }
       }
+      brake_thread.join
     end
 
     def drive
       unless car_on?
-        puts "Nothing happens. The car isn't running. Try turn_on first."
+        puts "Nothing happens. The car isn't running. You need to turn it on first."
         return
       end
 
       if current_speed != 0
-        puts "The #{name} is already in motion. You should try brake."
+        puts "The #{name} is already in motion. You should apply the brake."
         return
       end
       drive_thread = Thread.new{
         @mutex.synchronize {
-          puts "The #{color} colored #{name} roars off down the road..."
+          puts "A light push on the gas peddle causes the #{name} to roar off down the road..."
           accelerate
           @cv.signal
         }
       }
+      drive_thread.join
+    end
+
+    def go_for_a_ride
+      puts "You get behind the wheel of a #{color} colored #{brand} #{name} in the garage."
+      turn_on
+      sleep(2)
+      drive
+      sleep(2)
+      puts 'Time to slow down before you get a ticket.'
+      brake
+      sleep(2)
+      turn_off
     end
 
     def turn_off
@@ -61,9 +74,9 @@ module MyGarage
 
       if motion == :stop
         @main_thread.exit
-        puts "The #{name}'s engine shuts down."
+        puts "You turn the key and shuf off the #{name}'s engine."
       else
-        puts "Turning off the engine while the car is moving is not safe. Tell the car to brake first."
+        puts "Turning off the engine while the car is moving is not safe. You should apply the brake first."
       end
 
     end
@@ -77,7 +90,7 @@ module MyGarage
       end
       @main_thread = Thread.new {
         @mutex.synchronize {
-          puts "The #{name}'s engine jumps to life and begins to idle..."
+          puts "When you turn the key, the #{name}'s engine jumps to life and begins to idle."
           loop do
             @cv.wait(@mutex)
             motion == :stop ? idle : moving
@@ -94,7 +107,7 @@ module MyGarage
         @motion = :moving
         print "Current Speed: #{current_speed} \r"
         $stdout.flush
-        sleep(0.01)
+        sleep(0.05)
       end
       puts "The #{name} has hit its max speed of #{max_speed} mph."
     end
@@ -104,7 +117,7 @@ module MyGarage
         @current_speed -= 1
         print "Current Speed: #{current_speed} \r"
         $stdout.flush
-        sleep(0.01)
+        sleep(0.05)
       end
       @motion = :stop
       puts "The #{name} has reached #{current_speed} mph and come to a complete stop."
@@ -123,7 +136,7 @@ module MyGarage
     end
 
     def moving
-      puts "The #{name} is whipping down the road. Objects being passed are a blur."
+      puts "Objects being passed are a blur as the #{name} whips down the road."
     end
 
   end

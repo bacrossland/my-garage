@@ -1,0 +1,18 @@
+addons:
+language: ruby
+rvm:
+  - 2.3.1
+  - 2.4.3
+  - 2.5.0
+  - ruby-head
+  - jruby
+
+matrix:
+  allow_failures:
+    - rvm: ruby-head
+
+cache: bundler
+
+before_install:
+  - "rm ${BUNDLE_GEMFILE}.lock"
+  - gem install bundler -v 1.16.1

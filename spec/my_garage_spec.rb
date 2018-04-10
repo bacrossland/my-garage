@@ -3,7 +3,7 @@ RSpec.describe MyGarage do
     expect(MyGarage::VERSION).not_to be nil
   end
 
-  it "does something useful" do
-    expect(false).to eq(true)
+  it "is available as described_class" do
+    expect(described_class).to eq(MyGarage)
   end
 end
