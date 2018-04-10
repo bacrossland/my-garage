@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/bacrossland/my_garage.svg?branch=master)](https://travis-ci.org/bacrossland/my_garage)
 # MyGarage
 
 Welcome to MyGarage! This is a multi-threaded ruby application for racing cars. 
